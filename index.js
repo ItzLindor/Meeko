@@ -7,6 +7,7 @@ const { Client, Collection, Events, GatewayIntentBits} = require('discord.js');
 const { token } = process.env.token;
 
 
+
 const axios = require('axios');
 const userStreamingData = new Map(); // Store messages and streaming URLs by user ID
 
@@ -125,7 +126,7 @@ async function checkStreamingStatus() {
 setInterval(checkStreamingStatus, 30000);
 
 // Log in to Discord with your client's token
-client.login(token);
+client.login(process.env.token);
 
 
 
