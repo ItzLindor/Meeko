@@ -5,7 +5,7 @@ const path = require('node:path');
 
 // Require the necessary discord.js classes
 const { Client, Collection, Events, GatewayIntentBits} = require('discord.js');
-//const { token } = process.env.token;
+const { token } = process.env.token;
 
 
 
@@ -127,10 +127,10 @@ async function checkStreamingStatus() {
 setInterval(checkStreamingStatus, 30000);
 
 // Log in to Discord with your client's token
-//client.login(process.env.token);
+client.login(process.env.token);
 
 
-client.login("MTMwMzExOTI4OTg2NzU3MTI1MA.GUfy6n.33dJzBNiCPHshV6kohZpeebDZguYykxtIF3zfI");
+//client.login("MTMwMzExOTI4OTg2NzU3MTI1MA.GUfy6n.33dJzBNiCPHshV6kohZpeebDZguYykxtIF3zfI");
 
 
 
