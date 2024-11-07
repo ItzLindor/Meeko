@@ -123,6 +123,13 @@ async function checkStreamingStatus() {
     }
 }
 
+
+app.set('port', 8000);
+http.createServer(app).listen(app.get('port'),
+  function(){
+    console.log("Express server listening on port " + app.get('port'));
+});
+
 // Periodically check streaming status every 5 minutes (300000 milliseconds)
 setInterval(checkStreamingStatus, 30000);
 console.log(token);
