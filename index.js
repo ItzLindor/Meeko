@@ -1,6 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 require('dotenv').config()
+const deployCommands = require('./deploy-commands.js');
 
 
 // Require the necessary discord.js classes
@@ -51,12 +52,14 @@ for (const folder of commandFolders) {
 		const command = require(filePath);
 		// Set a new item in the Collection with the key as the command name and the value as the exported module
 		if ('data' in command && 'execute' in command) {
+            console.log(command.data.name);
 			client.commands.set(command.data.name, command);
 		} else {
 			console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
 		}
 	}
 }
+deployCommands();
 
 
 const eventsPath = path.join(__dirname, 'events');
@@ -71,6 +74,8 @@ for (const file of eventFiles) {
 		client.on(event.name, (...args) => event.execute(...args));
 	}
 }
+
+
 
 
 
