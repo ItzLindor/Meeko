@@ -24,7 +24,6 @@ const fileContent = fs.readFileSync(dataFilePath, 'utf8');
 // Load existing data if the file exists
 let savedRoleMappings = {};
 if (fs.existsSync(dataFilePath)) {
-    const fileContent = fs.readFileSync(dataFilePath, 'utf8');
     savedRoleMappings = JSON.parse(fs.readFileSync(dataFilePath, 'utf8'));
 }
 
