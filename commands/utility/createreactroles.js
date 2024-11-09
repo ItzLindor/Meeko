@@ -18,7 +18,7 @@ const FILE_PATH = 'commands/utility/reactrole_data.json';
 const BRANCH = 'master';
 
 const dataFilePath = path.join(__dirname, 'reactrole_data.json'); // Path to store data
-//const fileContent = fs.readFileSync(dataFilePath, 'utf8');
+const fileContent = fs.readFileSync(dataFilePath, 'utf8');
 
 
 // Load existing data if the file exists
@@ -43,7 +43,7 @@ if (fs.existsSync(dataFilePath)) {
     }
 }
 
-async function saveFileToGitHub() {
+async function saveFileToGitHub(fileContent) {
     const fileSHA = await getFileSHA();
 
     if (!fileSHA) {
@@ -92,6 +92,8 @@ module.exports = {
 
     async execute(interaction) {
 
+        const dataFilePath = path.join(__dirname, 'reactrole_data.json'); // Path to store data
+        const fileContent = fs.readFileSync(dataFilePath, 'utf8');
 
         //console.log(interaction);
         const messageID = interaction.options.getString('messageid');
@@ -163,7 +165,7 @@ module.exports = {
          fs.writeFileSync(dataFilePath, JSON.stringify(savedRoleMappings, null, 2));
 
 
-         await saveFileToGitHub();
+         await saveFileToGitHub(fileContent);
 
 
         await interaction.reply({ content: 'Roles created and reactions added for role assignment!' });
