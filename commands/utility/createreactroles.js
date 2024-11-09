@@ -1,24 +1,77 @@
 const { SlashCommandBuilder, PermissionsBitField } = require('discord.js');
-require('dotenv').config()
 
 // In-memory storage for message-to-role mappings (for simplicity)
 const roleMappings = new Map();
 
-// Load existing data from the REACTROLE_DATA environment variable
+
+const fs = require('fs');
+const axios = require('axios');
+const path = require('path');
+//const { roleMappings } = require('./creatreactroles.js');
+
+
+// Set up GitHub configuration
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN; // Your GitHub Personal Access Token
+const REPO_OWNER = 'ItzLindor';
+const REPO_NAME = 'Meeko';
+const FILE_PATH = 'commands/utility/reactrole_data.json';
+const BRANCH = 'master';
+
+const dataFilePath = path.join(__dirname, 'reactrole_data.json'); // Path to store data
+//const fileContent = fs.readFileSync(dataFilePath, 'utf8');
+
+
+// Load existing data if the file exists
 let savedRoleMappings = {};
-if (process.env.REACTROLE_DATA) {
+if (fs.existsSync(dataFilePath)) {
+    const fileContent = fs.readFileSync(dataFilePath, 'utf8');
+    savedRoleMappings = JSON.parse(fs.readFileSync(dataFilePath, 'utf8'));
+}
+
+ async function getFileSHA() {
     try {
-        //console.log(JSON.parse(process.env.REACTROLE_DATA));
-        savedRoleMappings = JSON.parse(process.env.REACTROLE_DATA);
+        const response = await axios.get(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}?ref=${BRANCH}`, {
+            headers: {
+                Authorization: `token ${GITHUB_TOKEN}`,
+                Accept: 'application/vnd.github.v3+json',
+            },
+        });
+        return response.data.sha;
     } catch (error) {
-        console.error("Failed to parse REACTROLE_DATA:", error);
+        console.error("Error fetching file SHA:", error.message);
+        return null;
     }
 }
 
-// Sync saved mappings into roleMappings Map for usage
-for (const [messageID, data] of Object.entries(savedRoleMappings)) {
-    roleMappings.set(messageID, data);
+async function saveFileToGitHub() {
+    const fileSHA = await getFileSHA();
+
+    if (!fileSHA) {
+        console.error("Failed to retrieve file SHA; aborting save to GitHub.");
+        return;
+    }
+    const encodedContent = Buffer.from(fileContent).toString('base64');
+    const commitMessage = 'Update reactrole_data.json';
+
+    try {
+        const response = await axios.put(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+            message: commitMessage,
+            content: encodedContent,
+            sha: fileSHA,
+            branch: BRANCH,
+        }, {
+            headers: {
+                Authorization: `token ${GITHUB_TOKEN}`,
+                Accept: 'application/vnd.github.v3+json',
+            },
+        });
+
+        console.log('File successfully updated on GitHub:', response.data.content.html_url);
+    } catch (error) {
+        console.error("Error saving file to GitHub:", error.message);
+    }
 }
+
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -38,6 +91,9 @@ module.exports = {
                 .setRequired(true)),
 
     async execute(interaction) {
+
+
+        //console.log(interaction);
         const messageID = interaction.options.getString('messageid');
         const roleCount = interaction.options.getInteger('rolecount');
         const roleNames = interaction.options.getString('rolenames').split(',').map(name => name.trim());
@@ -54,6 +110,11 @@ module.exports = {
                 content: 'You do not have permission to use this command.', 
                 ephemeral: true 
             });
+        }
+
+        // Check if role count matches the number of role names
+        if (roleCount !== roleNames.length) {
+            return interaction.reply({ content: 'The number of roles does not match the role count specified.', ephemeral: true });
         }
 
         const maxReactions = 4;
@@ -97,13 +158,13 @@ module.exports = {
         // Store the mapping so it can be accessed by the reaction handler
         roleMappings.set(messageID, emojiRoleMapping);
 
-        // Save data to the environment variable
-        savedRoleMappings[messageID] = { roleCount, roleNames };
-        process.env.REACTROLE_DATA = JSON.stringify(savedRoleMappings);
+         // Save data to file
+         savedRoleMappings[messageID] = { roleCount, roleNames };
+         fs.writeFileSync(dataFilePath, JSON.stringify(savedRoleMappings, null, 2));
 
-        console.log(JSON.parse(process.env.REACTROLE_DATA));
-        //process.env.REACTROLE_DATA = (savedRoleMappings);
-        
+
+         await saveFileToGitHub();
+
 
         await interaction.reply({ content: 'Roles created and reactions added for role assignment!' });
     },
