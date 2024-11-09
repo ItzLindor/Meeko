@@ -6,6 +6,7 @@ module.exports = {
 	name: Events.MessageReactionAdd,
 	on: true,
 	async execute(reaction, user) {
+        console.log(`${user.name} has added a reaction`);
         if (user.bot) return; // Ignore bot reactions
 
         const { message, emoji } = reaction;

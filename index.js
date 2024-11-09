@@ -5,7 +5,7 @@ const deployCommands = require('./deploy-commands.js');
 
 
 // Require the necessary discord.js classes
-const { Client, Collection, Events, GatewayIntentBits} = require('discord.js');
+const { Client, Collection, Events, GatewayIntentBits, Partials} = require('discord.js');
 const token = process.env.token;
 
 
@@ -33,7 +33,8 @@ const client = new Client({
         GatewayIntentBits.GuildPresences,
         GatewayIntentBits.GuildIntegrations,
         
-    ]
+    ],
+    partials: [Partials.Message, Partials.Channel, Partials.Reaction],
 });
 
 

@@ -1,4 +1,54 @@
 const { Events, PermissionsBitField, ChannelType } = require('discord.js');
+const { roleMappings } = require('../commands/utility/createreactroles.js'); // Adjust path if needed
+
+const fs = require('fs');
+const path = require('path');
+require('dotenv').config();
+//const client = require(`../index.js`)
+
+
+
+
+// Function to load previous role mappings from the "reaction-roles" channel
+const dataFilePath = path.join(__dirname, '../commands/utility/reactrole_data.json'); // Path to saved data file
+
+// Load previous role mappings based on saved command data
+async function loadPreviousRoleMappings() {
+    console.log(`Loading previous role mappings`)
+    if (!fs.existsSync(dataFilePath)) return;
+
+    const savedRoleMappings = JSON.parse(fs.readFileSync(dataFilePath, 'utf8'));
+    const channel = await client.channels.fetch('1303889818861834264'); // "reaction-roles" channel ID
+    if (!channel) {
+        console.log("Reaction roles channel not found.");
+        return;
+    }
+    console.log("Reaction channel found");
+
+    for (const [messageID, { roleCount, roleNames }] of Object.entries(savedRoleMappings)) {
+        const message = await channel.messages.fetch(messageID).catch(console.error);
+        if (!message) continue;
+
+        const emojiRoleMapping = {};
+
+        // Add reactions and populate `roleMappings`
+        for (let i = 0; i < roleCount; i++) {
+            const roleName = roleNames[i];
+            const role = message.guild.roles.cache.find(r => r.name === roleName);
+            const emoji = ['👍', '👎', '😊', '😎'][i]; // Customize emojis if needed
+            if (role) {
+                emojiRoleMapping[emoji] = role.id;
+                await message.react(emoji);
+            }
+        }
+
+        if (Object.keys(emojiRoleMapping).length > 0) {
+            roleMappings.set(messageID, emojiRoleMapping);
+        }
+    }
+    console.log(`Previous reaction roles loaded into roleMappings. \n ${roleMappings}`);
+
+}
 
 async function updateMemberCountChannel(guild) {
     // Fetch all members to ensure accurate count, especially when the bot first starts
@@ -35,6 +85,61 @@ module.exports = {
     once: true,
     async execute(client) {
         console.log(`Ready! Logged in as ${client.user.tag}`);
+
+        //await loadPreviousRoleMappings();
+        
+            console.log(`Loading previous role mappings`)
+            if (!fs.existsSync(dataFilePath)) return;
+        
+            const savedRoleMappings = JSON.parse(fs.readFileSync(dataFilePath, 'utf8'));
+            const channel = await client.channels.fetch('1303889818861834264'); // "reaction-roles" channel ID
+            if (!channel) {
+                console.log("Reaction roles channel not found.");
+                return;
+            }
+            console.log("Reaction channel found");
+        
+            for (const [messageID, { roleCount, roleNames }] of Object.entries(savedRoleMappings)) {
+                const message = await channel.messages.fetch(messageID).catch(console.error);
+                if (!message) continue;
+        
+                const emojiRoleMapping = {};
+        
+                // Add reactions and populate `roleMappings`
+                for (let i = 0; i < roleCount; i++) {
+                    const roleName = roleNames[i];
+                    const role = message.guild.roles.cache.find(r => r.name === roleName);
+                    const emoji = ['👍', '👎', '😊', '😎'][i]; // Customize emojis if needed
+                    if (role) {
+                        emojiRoleMapping[emoji] = role.id;
+                        await message.react(emoji);
+                    }
+                }
+        
+                if (Object.keys(emojiRoleMapping).length > 0) {
+                   await roleMappings.set(messageID, emojiRoleMapping);
+                }
+            }
+            console.log(`Previous reaction roles loaded into roleMappings.`)
+           // console.table(roleMappings);
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         // Ensure member caches are populated and initial update when bot starts
         for (const guild of client.guilds.cache.values()) {
