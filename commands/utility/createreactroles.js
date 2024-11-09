@@ -100,7 +100,7 @@ module.exports = {
         }
 
         // Store the mapping so it can be accessed by the reaction handler
-        //roleMappings.set(messageId, emojiRoleMapping);
+        roleMappings.set(messageID, emojiRoleMapping);
 
          // Save data to file
          savedRoleMappings[messageID] = { roleCount, roleNames };
