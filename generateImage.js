@@ -1,11 +1,37 @@
 const Canvas = require("canvas")
 const Discord = require("discord.js")
 
+const fs = require('fs');
+const path = require('path');
 
-const background = ["https://imgur.com/a43Hlwb.jpeg","https://imgur.com/ORUssAk.jpeg", "https://imgur.com/AvaF4Rl.jpeg", "https://imgur.com/2Rken3s.jpeg", "https://imgur.com/J6Saylq.jpeg", "https://imgur.com/WBUcGaj.jpeg", "https://imgur.com/uP0E5gw.jpeg", "https://imgur.com/SwpqcLX.jpeg", "https://imgur.com/kr59t6d.jpeg", "https://imgur.com/OYkr1zM.jpeg", "https://imgur.com/rn2k1lx.jpeg",
-    "https://imgur.com/rn2k1lx.jpeg", "https://imgur.com/AW9Mvc6.jpeg", "https://imgur.com/ZMLxMBy.jpeg", "https://imgur.com/nYstlxb.jpeg", "https://imgur.com/JF4q3nw.jpeg", "https://imgur.com/ibuPB1k.jpeg", "https://imgur.com/hzwOGDv.jpeg", "https://imgur.com/eAvHfLm.jpeg",
-     "https://imgur.com/3IKm9WL.jpeg", "https://imgur.com/Bqyk6UH.jpeg", "https://imgur.com/ntqfwRb.jpeg", "https://imgur.com/nYWtOqK.jpeg"];
-const randomBackground = background[Math.floor(Math.random()*background.length)];
+
+// const background = ["https://imgur.com/a43Hlwb.jpeg","https://imgur.com/ORUssAk.jpeg", "https://imgur.com/AvaF4Rl.jpeg", "https://imgur.com/2Rken3s.jpeg", 
+//     "https://imgur.com/J6Saylq.jpeg", "https://imgur.com/WBUcGaj.jpeg", "https://imgur.com/uP0E5gw.jpeg", "https://imgur.com/SwpqcLX.jpeg", "https://imgur.com/kr59t6d.jpeg", 
+//     "https://imgur.com/OYkr1zM.jpeg", "https://imgur.com/rn2k1lx.jpeg", "https://imgur.com/rn2k1lx.jpeg", "https://imgur.com/AW9Mvc6.jpeg", "https://imgur.com/ZMLxMBy.jpeg", 
+//     "https://imgur.com/nYstlxb.jpeg", "https://imgur.com/JF4q3nw.jpeg", "https://imgur.com/ibuPB1k.jpeg", "https://imgur.com/hzwOGDv.jpeg", "https://imgur.com/eAvHfLm.jpeg",
+//     "https://imgur.com/3IKm9WL.jpeg", "https://imgur.com/Bqyk6UH.jpeg", "https://imgur.com/ntqfwRb.jpeg", "https://imgur.com/nYWtOqK.jpeg"];
+
+// Set the main folder path and subfolder names
+const mainFolder = path.join(__dirname, 'Space Pictures');
+const subfolders = ['Astro Painting Wallpapers', 'Astro Photography Wallpapers', 'Wallpapers']; // Update with actual subfolder names
+
+function getRandomImagePath() {
+    const allImages = [];
+
+    // Iterate over each subfolder to collect images
+    subfolders.forEach(subfolder => {
+        const folderPath = path.join(mainFolder, subfolder);
+        const images = fs.readdirSync(folderPath).map(file => path.join(folderPath, file));
+        allImages.push(...images); // Add all images from this subfolder
+    });
+
+     // Choose a random image from the combined list
+     const randomImagePath = allImages[Math.floor(Math.random() * allImages.length)];
+     return randomImagePath;
+}
+
+
+//const randomBackground = background[Math.floor(Math.random()*background.length)];
 
 const dim = {
     height:675, 
@@ -25,6 +51,8 @@ const generateImage = async (member) => {
     let discrim = member.user.discriminator
     let avatarURL = member.user.displayAvatarURL({format: "png", dynamic: "true", size: av.size})
 
+    const imagePath = getRandomImagePath();
+
 
     
 
@@ -32,7 +60,7 @@ const generateImage = async (member) => {
     const ctx = canvas.getContext("2d")
 
     //draw background
-    const backimg = await Canvas.loadImage(randomBackground)
+    const backimg = await Canvas.loadImage(imagePath)
 
 
     var canvas2 = ctx.canvas ;
