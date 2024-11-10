@@ -42,14 +42,16 @@ if (fs.existsSync(dataFilePath)) {
     }
 }
 
-async function saveFileToGitHub(fileContent) {
+async function saveFileToGitHub() {
+    const dataFilePath2 = path.join(__dirname, 'reactrole_data.json'); // Path to store data
+    const fileContent2 = fs.readFileSync(dataFilePath2, 'utf8');
     const fileSHA = await getFileSHA();
 
     if (!fileSHA) {
         console.error("Failed to retrieve file SHA; aborting save to GitHub.");
         return;
     }
-    const encodedContent = Buffer.from(fileContent).toString('base64');
+    const encodedContent = Buffer.from(fileContent2).toString('base64');
     const commitMessage = 'Update reactrole_data.json';
 
     try {
@@ -91,8 +93,8 @@ module.exports = {
 
     async execute(interaction) {
 
-        const dataFilePath = path.join(__dirname, 'reactrole_data.json'); // Path to store data
-        const fileContent = fs.readFileSync(dataFilePath, 'utf8');
+        let dataFilePath = path.join(__dirname, 'reactrole_data.json'); // Path to store data
+        let fileContent = fs.readFileSync(dataFilePath, 'utf8');
 
         //console.log(interaction);
         const messageID = interaction.options.getString('messageid');
@@ -163,8 +165,8 @@ module.exports = {
          savedRoleMappings[messageID] = { roleCount, roleNames };
          fs.writeFileSync(dataFilePath, JSON.stringify(savedRoleMappings, null, 2));
 
-
-         await saveFileToGitHub(fileContent);
+        
+         await saveFileToGitHub();
 
 
         await interaction.reply({ content: 'Roles created and reactions added for role assignment!' });
