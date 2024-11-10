@@ -15,7 +15,8 @@
     "canvas": "^3.0.0-rc2",
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.5",
-    "express": "^4.21.1"
+    "express": "^4.21.1",
+    "simple-concat": "^1.0.1"
   },
   "devDependencies": {
     "eslint": "^9.14.0"
